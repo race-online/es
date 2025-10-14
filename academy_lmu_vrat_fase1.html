@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clasificación VRat3</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    background-color: #1e1e1e;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .banner {
+    width: 100%;
+    max-width: 1200px;
+    height: 120px;
+    margin: 0 auto 15px auto;
+    display: block;
+    background: url("https://i.ibb.co/mCH1pvVQ/banner.jpg") center/cover no-repeat;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .banner {
+      height: 80px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  th, td {
+    text-align: center;
+    white-space: nowrap;
+    height: 42px;
+    padding: 0 10px;
+    vertical-align: middle;
+    box-sizing: border-box;
+  }
+
+  th {
+    background-color: black;
+    font-weight: bold;
+    z-index: 5;
+  }
+
+  tr:nth-child(even) td { background-color: #282828; }
+  tr:nth-child(odd) td { background-color: #1e1e1e; }
+
+  .posicion-box {
+    display: inline-block;
+    background-color: #DD0000;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .posicion-box span { display: inline-block; transform: skew(20deg); }
+
+  .dorsal-box {
+    display: inline-block;
+    background-color: #FFFFFF;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .dorsal-box span { display: inline-block; transform: skew(20deg); }
+
+  /* Indicador triángulo / rectángulo */
+  .triangulo {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 6px sol
+
