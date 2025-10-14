@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clasificación</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    background-color: #1e1e1e;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    margin: 0;
+    padding: 20px;
+  }
+
+  /* --- Banner horizontal --- */
+  .banner {
+    width: 100%;
+    max-width: 1200px;
+    height: 120px; /* escritorio */
+    margin: 0 auto 15px auto;
+    display: block;
+    background: url("https://i.ibb.co/mCH1pvVQ/banner.jpg") center/cover no-repeat;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .banner {
+      height: 80px; /* móvil */
+      margin-bottom: 10px;
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  th, td {
+    text-align: center;
+    white-space: nowrap;
+    height: 42px;
+    padding: 0 10px;
+    vertical-align: middle;
+    box-sizing: border-box;
+  }
+
+  th {
+    background-color: black;
+    font-weight: bold;
+    z-index: 5;
+  }
+
+  tr:nth-child(even) td { background-color: #282828; }
+  tr:nth-child(odd) td { background-color: #1e1e1e; }
+
+  .posicion-box {
+    display: inline-block;
+    background-color: #DD0000;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .posicion-box span { display: inline-block; transform: skew(20deg); }
+
+  .dorsal-box {
+    display: inline-block;
+    background-color: #FFFFFF;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .dorsal-box span { display: inline-block; transform: skew(20deg); }
+
+  td { font-size: 14px; line-height: 1.2; }
+  td.posicion, td.dorsal { font-size: 18px; font-weight: bold; }
+  td.piloto { font-weight: 600; }
+  td.puntos { font-weight: bold; }
+  td.pen { color: #ffffff; }
+  td.equipo { min-width: 180px; }
+  td.marca img {
+    height: 38px;
+    width: 38px;
+    display: block;
+    margin: 2px auto;
+    object-fit: contain;
+  }
+
+  /* --- Responsive con columnas fijas --- */
+  @media (max-width: 768px) {
+    th, td { padding: 0 6px; font-size: 12px; line-height: 20px; }
+    .posicion-box, .dorsal-box { font-size: 16px; padding: 3px 8px; }
+    td.equipo { min-width: 140px; }
+    td.marca img { height: 24px; width: 24px; }
+
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+
+    /* Columnas fijas */
+    th:nth-child(1), td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background-color: #1e1e1e;
+    }
+
+    th:nth-child(2), td:nth-child(2) {
+      position: sticky;
+      left: 70px;
+      z-index: 3;
+      background-color: #1e1e1e;
+    }
+
+    th:nth-child(3), td:nth-child(3) {
+      position: sticky;
+      left: 140px;
+      z-index: 3;
+      background-color: #1e1e1e;
+    }
+
+    table { min-width: 900px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Banner horizontal -->
+<div class="banner"></div>
+
+<div class="table-container">
+  <table id="clasificacion"></table>
+</div>
+
+<script>
+const sheetId = "1Jx8AvjYbslVL7zNIGkf58-4Pysbvjl0SWdD6XxkOlL8";
+const sheetName = "Clas3";
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+fetch(url)
+  .then(res => res.text())
+  .then(data => {
+    const json = JSON.parse(data.substr(47).slice(0, -2));
+    const cols = json.table.cols.map(c => c.label);
+    const rows = json.table.rows;
+
+    const table = document.getElementById("clasificacion");
+
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    cols.forEach(col => {
+      const th = document.createElement("th");
+      th.innerText = col;
+      trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    rows.forEach(row => {
+      const tr = document.createElement("tr");
+      row.c.forEach((cell, i) => {
+        const td = document.createElement("td");
+        let value = cell ? cell.v : "";
+        const colName = cols[i];
+
+        if (colName === "Posición") {
+          td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
+          td.className = "posicion";
+        } else if (colName === "#") {
+          td.innerHTML = `<div class="dorsal-box"><span>${value}</span></div>`;
+          td.className = "dorsal";
+        } else if (colName === "Clase") td.className = "clase", td.innerText = value;
+        else if (colName === "Piloto") td.className = "piloto", td.innerText = value;
+        else if (colName === "Equipo") td.className = "equipo", td.innerText = value;
+        else if (colName === "Marca") td.className = "marca", td.innerHTML = `<img src="${value}" alt="Marca">`;
+        else if (colName === "Spec") td.className = "spec", td.innerText = value;
+        else if (colName === "COTA") td.className = "cota", td.innerText = value;
+        else if (colName === "INTE") td.className = "inte", td.innerText = value;
+        else if (colName === "BAHR") td.className = "bahr", td.innerText = value;
+        else if (colName === "FUJI") td.className = "fuji", td.innerText = value;
+        else if (colName === "Puntos") td.className = "puntos", td.innerText = value;
+        else if (colName === "Pen") td.className = "pen", td.innerText = value;
+        else td.innerText = value;
+
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+  })
+  .catch(err => console.error(err));
+</script>
+</body>
+</html>
