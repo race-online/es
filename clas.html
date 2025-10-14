@@ -57,21 +57,30 @@
     z-index: 5;
   }
 
-  tr:nth-child(even) td { background-color: #282828; }
-  tr:nth-child(odd) td { background-color: #1e1e1e; }
+  tr:nth-child(even) td {
+    background-color: #282828;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #1e1e1e;
+  }
 
   .posicion-box {
     display: inline-block;
     background-color: #DD0000;
     color: white;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     padding: 4px 10px;
     transform: skew(-20deg);
     min-width: 36px;
     line-height: 1;
   }
-  .posicion-box span { display: inline-block; transform: skew(20deg); }
+
+  .posicion-box span {
+    display: inline-block;
+    transform: skew(20deg);
+  }
 
   .dorsal-box {
     display: inline-block;
@@ -84,14 +93,38 @@
     min-width: 36px;
     line-height: 1;
   }
-  .dorsal-box span { display: inline-block; transform: skew(20deg); }
 
-  td { font-size: 14px; line-height: 1.2; }
-  td.posicion, td.dorsal { font-size: 18px; font-weight: bold; }
-  td.piloto { font-weight: 600; }
-  td.puntos { font-weight: bold; }
-  td.pen { color: #ffffff; }
-  td.equipo { min-width: 180px; }
+  .dorsal-box span {
+    display: inline-block;
+    transform: skew(20deg);
+  }
+
+  td {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  td.posicion, td.dorsal {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  td.piloto {
+    font-weight: 600;
+  }
+
+  td.puntos {
+    font-weight: bold;
+  }
+
+  td.pen {
+    color: #ffffff;
+  }
+
+  td.equipo {
+    min-width: 180px;
+  }
+
   td.marca img {
     height: 38px;
     width: 38px;
@@ -102,11 +135,22 @@
 
   /* --- Responsive con columnas fijas --- */
   @media (max-width: 768px) {
-    th, td { padding: 0 6px; font-size: 12px; line-height: 20px; }
-    .posicion-box, .dorsal-box { font-size: 16px; padding: 3px 8px; }
-    td.equipo { min-width: 140px; }
-    td.marca img { height: 24px; width: 24px; }
-
+    th, td {
+      padding: 0 6px;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    .posicion-box, .dorsal-box {
+      font-size: 16px;
+      padding: 3px 8px;
+    }
+    td.equipo {
+      min-width: 140px;
+    }
+    td.marca img {
+      height: 24px;
+      width: 24px;
+    }
     .table-container {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -120,27 +164,25 @@
       z-index: 3;
       background-color: #1e1e1e;
     }
-
     th:nth-child(2), td:nth-child(2) {
       position: sticky;
       left: 70px;
       z-index: 3;
       background-color: #1e1e1e;
     }
-
     th:nth-child(3), td:nth-child(3) {
       position: sticky;
       left: 140px;
       z-index: 3;
       background-color: #1e1e1e;
     }
-
-    table { min-width: 900px; }
+    table {
+      min-width: 900px;
+    }
   }
 </style>
 </head>
 <body>
-
 <!-- Banner horizontal -->
 <div class="banner"></div>
 
@@ -162,16 +204,18 @@ fetch(url)
 
     const table = document.getElementById("clasificacion");
 
+    // --- Crear encabezado ---
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
     cols.forEach(col => {
       const th = document.createElement("th");
-      th.innerText = col;
+      th.innerText = (col === "#") ? "Lic." : col; // Cambiamos # por Lic.
       trHead.appendChild(th);
     });
     thead.appendChild(trHead);
     table.appendChild(thead);
 
+    // --- Crear cuerpo de tabla ---
     const tbody = document.createElement("tbody");
     rows.forEach(row => {
       const tr = document.createElement("tr");
@@ -186,18 +230,42 @@ fetch(url)
         } else if (colName === "#") {
           td.innerHTML = `<div class="dorsal-box"><span>${value}</span></div>`;
           td.className = "dorsal";
-        } else if (colName === "Clase") td.className = "clase", td.innerText = value;
-        else if (colName === "Piloto") td.className = "piloto", td.innerText = value;
-        else if (colName === "Equipo") td.className = "equipo", td.innerText = value;
-        else if (colName === "Marca") td.className = "marca", td.innerHTML = `<img src="${value}" alt="Marca">`;
-        else if (colName === "Spec") td.className = "spec", td.innerText = value;
-        else if (colName === "COTA") td.className = "cota", td.innerText = value;
-        else if (colName === "INTE") td.className = "inte", td.innerText = value;
-        else if (colName === "BAHR") td.className = "bahr", td.innerText = value;
-        else if (colName === "FUJI") td.className = "fuji", td.innerText = value;
-        else if (colName === "Puntos") td.className = "puntos", td.innerText = value;
-        else if (colName === "Pen") td.className = "pen", td.innerText = value;
-        else td.innerText = value;
+        } else if (colName === "Clase") {
+          td.className = "clase";
+          td.innerText = value;
+        } else if (colName === "Piloto") {
+          td.className = "piloto";
+          td.innerText = value;
+        } else if (colName === "Equipo") {
+          td.className = "equipo";
+          td.innerText = value;
+        } else if (colName === "Marca") {
+          td.className = "marca";
+          td.innerHTML = `<img src="${value}" alt="Marca">`;
+        } else if (colName === "Spec") {
+          td.className = "spec";
+          td.innerText = value;
+        } else if (colName === "COTA") {
+          td.className = "cota";
+          td.innerText = value;
+        } else if (colName === "INTE") {
+          td.className = "inte";
+          td.innerText = value;
+        } else if (colName === "BAHR") {
+          td.className = "bahr";
+          td.innerText = value;
+        } else if (colName === "FUJI") {
+          td.className = "fuji";
+          td.innerText = value;
+        } else if (colName === "Puntos") {
+          td.className = "puntos";
+          td.innerText = value;
+        } else if (colName === "Pen") {
+          td.className = "pen";
+          td.innerText = value;
+        } else {
+          td.innerText = value;
+        }
 
         tr.appendChild(td);
       });
