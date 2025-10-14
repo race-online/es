@@ -77,7 +77,7 @@
     background-color: #FFFFFF;
     color: black;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     padding: 4px 10px;
     transform: skew(-20deg);
     min-width: 36px;
@@ -162,7 +162,9 @@ fetch(url)
   .then(res => res.text())
   .then(data => {
     const json = JSON.parse(data.substr(47).slice(0, -2));
-    const cols = ["Posición","Clase","","Piloto","#","Equipo","Marca","Espec.","VRat"];
+
+    // Encabezados con Lic. en lugar de #
+    const cols = ["Posición","Clase","","Piloto","Lic.","Equipo","Marca","Espec.","VRat"];
     const rows = json.table.rows;
 
     const table = document.getElementById("clasificacion");
@@ -181,47 +183,44 @@ fetch(url)
     const tbody = document.createElement("tbody");
     rows.forEach((row, rowIndex) => {
       const tr = document.createElement("tr");
-
       cols.forEach((colName, i) => {
         const td = document.createElement("td");
 
-        // Función segura para obtener valor (muestra 0 correctamente)
-        const value = (row.c[i] && row.c[i].v !== null && row.c[i].v !== undefined) ? row.c[i].v : "";
-
         if(i === 0) {
+          const value = row.c[0]?.v || "";
           td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
           td.className = "posicion";
         } else if(i === 1) {
           td.className = "clase";
-          td.innerText = value;
+          td.innerText = row.c[1]?.v || "";
         } else if(i === 2) {
           td.className = "indicador";
           td.innerHTML = rowIndex < 18 ? '<div class="triangulo"></div>' : '<div class="rectangulo"></div>';
         } else if(i === 3) {
           td.className = "piloto";
-          td.innerText = value;
+          td.innerText = row.c[2]?.v || "";
         } else if(i === 4) {
           td.className = "dorsal";
-          td.innerHTML = `<div class="dorsal-box"><span>${value}</span></div>`;
+          td.innerHTML = `<div class="dorsal-box"><span>${row.c[3]?.v || ""}</span></div>`;
         } else if(i === 5) {
           td.className = "equipo";
-          td.innerText = value;
+          td.innerText = row.c[4]?.v || "";
         } else if(i === 6) {
           td.className = "marca";
-          td.innerHTML = `<img src="${value}" alt="Marca">`;
+          td.innerHTML = `<img src="${row.c[5]?.v || ""}" alt="Marca">`;
         } else if(i === 7) {
           td.className = "spec";
-          td.innerText = value;
+          td.innerText = row.c[6]?.v || "";
         } else if(i === 8) {
           td.className = "vrat";
-          td.innerText = value; // ahora muestra 0 correctamente
+          const vratValue = (row.c[7] && row.c[7].v !== null && row.c[7].v !== "") ? row.c[7].v : 0;
+          td.innerText = vratValue;
         }
 
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
     });
-
     table.appendChild(tbody);
   })
   .catch(err => console.error(err));
