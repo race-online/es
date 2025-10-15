@@ -1,0 +1,95 @@
+<script>
+const sheetId = "1Jx8AvjYbslVL7zNIGkf58-4Pysbvjl0SWdD6XxkOlL8";
+const sheetName = "Res";
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+fetch(url)
+  .then(res => res.text())
+  .then(data => {
+    const json = JSON.parse(data.substr(47).slice(0, -2));
+    const rows = json.table.rows;
+
+    const table = document.getElementById("clasificacion");
+    table.innerHTML = ""; // Limpiar tabla antes de rellenar
+
+    // --- Encabezado fijo ---
+    const headers = ["Posición","Gan/per","Clase","Piloto","Lic.","Equipo","Marca","Espec.","Vueltas","Tiempo","Mejor V.","Pits"];
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    headers.forEach(col => {
+      const th = document.createElement("th");
+      th.innerText = col;
+      trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    // --- Cuerpo de tabla ---
+    const tbody = document.createElement("tbody");
+
+    rows.forEach(row => {
+      const tr = document.createElement("tr");
+
+      headers.forEach((colName, i) => {
+        const td = document.createElement("td");
+        const cell = row.c[i];
+        let value = cell ? cell.v : "";
+
+        // Formato según columna
+        if(colName === "Posición") {
+          td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
+          td.className = "posicion";
+        } else if(colName === "Clase") {
+          td.className = "clase";
+          td.innerText = value;
+        } else if(colName === "Piloto") {
+          td.className = "piloto";
+          td.innerText = value;
+        } else if(colName === "Lic.") {
+          td.className = "dorsal";
+          td.innerText = value;
+        } else if(colName === "Equipo") {
+          td.className = "equipo";
+          td.innerText = value;
+        } else if(colName === "Marca") {
+          td.className = "marca";
+          td.innerHTML = `<img src="${value}" alt="Marca">`;
+        } else if(colName === "Espec.") {
+          td.className = "spec";
+          td.innerText = value;
+        } else if(colName === "Gan/per") {
+          td.className = "equipo";
+          if(value.includes("▲")) {
+            td.innerHTML = `<span style="color:limegreen;">${value}</span>`;
+          } else if(value.includes("▼")) {
+            td.innerHTML = `<span style="color:red;">${value}</span>`;
+          } else {
+            td.innerText = value;
+          }
+        } else if(["Vueltas","Tiempo","Mejor V.","Pits"].includes(colName)) {
+          td.className = "equipo";
+
+          // Redondeo para tiempos tipo 01:01:13.6774
+          if(/^\d+:\d{2}:\d{2}\.\d+$/.test(value)) {
+            const parts = value.split(".");
+            const dec = parts[1];
+            let rounded = Math.round(parseFloat("0." + dec) * 1000) / 1000;
+            let newDec = rounded.toFixed(3).split(".")[1];
+            td.innerText = parts[0] + "." + newDec;
+          } else {
+            td.innerText = value; // "1 laps", "DNF", etc.
+          }
+        } else {
+          td.innerText = value;
+        }
+
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+  })
+  .catch(err => console.error(err));
+</script>
