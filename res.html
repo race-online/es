@@ -1,91 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clasificación</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    background-color: #1e1e1e;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .banner {
+    width: 100%;
+    max-width: 1200px;
+    height: 120px;
+    margin: 0 auto 15px auto;
+    display: block;
+    background: url("https://i.ibb.co/mCH1pvVQ/banner.jpg") center/cover no-repeat;
+    border-radius: 10px;
+  }
+
+  .table-container { overflow-x: auto; width: 100%; }
+  table { border-collapse: collapse; width: 100%; table-layout: auto; }
+  th, td { text-align: center; white-space: nowrap; height: 42px; padding: 0 10px; vertical-align: middle; box-sizing: border-box; }
+  th { background-color: black; font-weight: bold; }
+  tr:nth-child(even) td { background-color: #282828; }
+  tr:nth-child(odd) td  { background-color: #1e1e1e; }
+
+  .posicion-box {
+    display: inline-block;
+    background-color: #DD0000;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .posicion-box span { transform: skew(20deg); display: inline-block; }
+
+  .dorsal-box {
+    display: inline-block;
+    background-color: #FFFFFF;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .dorsal-box span { transform: skew(20deg); display: inline-block; }
+
+  td { font-size: 14px; line-height: 1.2; }
+  td.posicion, td.dorsal { font-size: 18px; font-weight: bold; }
+  td.piloto { font-weight: 600; }
+
+  td.equipo, td.ganper { min-width: 180px; font-weight: 500; font-size: 14px; }
+  td.marca img { height: 38px; width: 38px; display: block; margin: 2px auto; object-fit: contain; }
+
+  .tri { display: inline-block; vertical-align: middle; margin-right: 6px; line-height: 1; }
+  .tri-up { color: #00ff00; }
+  .tri-down { color: #ff3b3b; transform: rotate(180deg); }
+  .gan-num { color: white; vertical-align: middle; }
+
+  @media (max-width: 768px) {
+    th, td { padding: 0 6px; font-size: 12px; line-height: 20px; }
+    .posicion-box, .dorsal-box { font-size: 16px; padding: 3px 8px; }
+    td.equipo, td.ganper { min-width: 140px; }
+    td.marca img { height: 24px; width: 24px; }
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
+
+    th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 3; background-color: #1e1e1e; }
+    th:nth-child(2), td:nth-child(2) { position: sticky; left: 65px; z-index: 3; background-color: #1e1e1e; }
+    th:nth-child(3), td:nth-child(3) { position: sticky; left: 130px; z-index: 3; background-color: #1e1e1e; }
+    table { min-width: 900px; }
+  }
+
+  /* ==== AJUSTES PARA REDUCIR ESPACIO ENTRE COLUMNAS ==== */
+  th, td {
+    padding: 0 6px; /* antes 0 10px */
+  }
+
+  td.ganper {
+    min-width: 80px; /* antes 180px */
+    padding: 0 4px;
+  }
+
+  td.posicion { padding-right: 4px; }
+  td.clase { padding-left: 4px; }
+
+  @media (max-width: 768px) {
+    td.ganper { min-width: 60px; padding: 0 3px; }
+    td.posicion { padding-right: 3px; }
+    td.clase { padding-left: 3px; }
+  }
+  /* ============================================== */
+</style>
+</head>
+<body>
+
+<div class="banner"></div>
+<div class="table-container">
+  <table id="clasificacion"></table>
+</div>
+
 <script>
 const sheetId = "1Jx8AvjYbslVL7zNIGkf58-4Pysbvjl0SWdD6XxkOlL8";
-const sheetName = "Res";
+const sheetName = "Res2";
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+const encabezados = [
+  "Posición","Gan/per","Clase","Piloto","Lic.","Equipo",
+  "Marca","Espec.","Vueltas","Tiempo","Mejor V.","Pits"
+];
+
+function safeGet(cols, rowVals, name) {
+  const idx = cols.indexOf(name);
+  if (idx === -1) return "";
+  return rowVals[idx] !== undefined && rowVals[idx] !== null ? rowVals[idx] : "";
+}
+
+function parseVariation(raw) {
+  if (!raw || typeof raw !== "string") return { direction: null, number: "" };
+  const s = raw.trim();
+  const upSymbols = ["▴","▲","^","▵","△","↑"];
+  const downSymbols = ["▾","▼","v","▿","▽","↓"];
+  let direction = null;
+  for (const sym of upSymbols) if (s.includes(sym)) { direction = "up"; break; }
+  for (const sym of downSymbols) if (s.includes(sym)) { direction = "down"; break; }
+  if (!direction) { if (/^\+/.test(s)) direction="up"; if (/^\-/.test(s)) direction="down"; }
+  const cleaned = s.replace(/[\u25B2\u25B4\u25B3\u25B5\u25BE\u25BD\u25BF\u2191\u2193\^v\+\-▲▼▴▾▿▽△▵]/g,"").trim();
+  return { direction, number: cleaned };
+}
 
 fetch(url)
   .then(res => res.text())
   .then(data => {
     const json = JSON.parse(data.substr(47).slice(0, -2));
-    const rows = json.table.rows;
-
+    const cols = json.table.cols.map(c => c.label);
+    const rows = json.table.rows || [];
     const table = document.getElementById("clasificacion");
-    table.innerHTML = ""; // Limpiar tabla antes de rellenar
+    table.innerHTML = "";
 
-    // --- Encabezado fijo ---
-    const headers = ["Posición","Gan/per","Clase","Piloto","Lic.","Equipo","Marca","Espec.","Vueltas","Tiempo","Mejor V.","Pits"];
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
-    headers.forEach(col => {
-      const th = document.createElement("th");
-      th.innerText = col;
-      trHead.appendChild(th);
-    });
+    encabezados.forEach(h => { const th = document.createElement("th"); th.innerText = h; trHead.appendChild(th); });
     thead.appendChild(trHead);
     table.appendChild(thead);
 
-    // --- Cuerpo de tabla ---
     const tbody = document.createElement("tbody");
+    const idxs = {
+      Posición: cols.indexOf("Posición"),
+      Ganper: cols.indexOf("Gan/per") !== -1 ? cols.indexOf("Gan/per") : (cols.indexOf("Var") !== -1 ? cols.indexOf("Var") : -1),
+      Clase: cols.indexOf("Clase"),
+      Piloto: cols.indexOf("Piloto"),
+      Lic: cols.indexOf("Lic."),
+      Equipo: cols.indexOf("Equipo"),
+      Marca: cols.indexOf("Marca"),
+      Espec: cols.indexOf("Espec."),
+      Vueltas: cols.indexOf("Vueltas"),
+      Tiempo: cols.indexOf("Tiempo"),
+      MejorV: cols.indexOf("Mejor V."),
+      Pits: cols.indexOf("Pits")
+    };
 
     rows.forEach(row => {
       const tr = document.createElement("tr");
+      const rowVals = (row.c || []).map(c => (c && c.v != null ? c.v : ""));
+      const get = i => (i!==-1 ? (rowVals[i]!==undefined ? rowVals[i] : "") : "");
 
-      headers.forEach((colName, i) => {
+      const posVal = get(idxs.Posición);
+      const ganRaw = get(idxs.Ganper);
+      const claseVal = get(idxs.Clase);
+      const pilotoVal = get(idxs.Piloto);
+      const licVal = get(idxs.Lic);
+      const equipoVal = get(idxs.Equipo);
+      const marcaVal = get(idxs.Marca);
+      const especVal = get(idxs.Espec);
+      const vueltasVal = get(idxs.Vueltas);
+      const tiempoVal = get(idxs.Tiempo);
+      const mejorVVal = get(idxs.MejorV);
+      const pitsVal = get(idxs.Pits);
+
+      encabezados.forEach(h => {
         const td = document.createElement("td");
-        const cell = row.c[i];
-        let value = cell ? cell.v : "";
-
-        // Formato según columna
-        if(colName === "Posición") {
-          td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
-          td.className = "posicion";
-        } else if(colName === "Clase") {
-          td.className = "clase";
-          td.innerText = value;
-        } else if(colName === "Piloto") {
-          td.className = "piloto";
-          td.innerText = value;
-        } else if(colName === "Lic.") {
-          td.className = "dorsal";
-          td.innerText = value;
-        } else if(colName === "Equipo") {
-          td.className = "equipo";
-          td.innerText = value;
-        } else if(colName === "Marca") {
-          td.className = "marca";
-          td.innerHTML = `<img src="${value}" alt="Marca">`;
-        } else if(colName === "Espec.") {
-          td.className = "spec";
-          td.innerText = value;
-        } else if(colName === "Gan/per") {
-          td.className = "equipo";
-          if(value.includes("▲")) {
-            td.innerHTML = `<span style="color:limegreen;">${value}</span>`;
-          } else if(value.includes("▼")) {
-            td.innerHTML = `<span style="color:red;">${value}</span>`;
-          } else {
-            td.innerText = value;
-          }
-        } else if(["Vueltas","Tiempo","Mejor V.","Pits"].includes(colName)) {
-          td.className = "equipo";
-
-          // Redondeo para tiempos tipo 01:01:13.6774
-          if(/^\d+:\d{2}:\d{2}\.\d+$/.test(value)) {
-            const parts = value.split(".");
-            const dec = parts[1];
-            let rounded = Math.round(parseFloat("0." + dec) * 1000) / 1000;
-            let newDec = rounded.toFixed(3).split(".")[1];
-            td.innerText = parts[0] + "." + newDec;
-          } else {
-            td.innerText = value; // "1 laps", "DNF", etc.
-          }
-        } else {
-          td.innerText = value;
+        switch(h){
+          case "Posición":
+            td.className="posicion";
+            td.innerHTML=`<div class="posicion-box"><span>${posVal}</span></div>`;
+            break;
+          case "Gan/per":
+            td.className="ganper equipo";
+            const parsed=parseVariation(String(ganRaw||"").trim());
+            if(parsed.direction==="up"){
+              const numHtml=parsed.number?`<span class="gan-num">${parsed.number}</span>`:"";
+              td.innerHTML=`<span class="tri tri-up">▴</span>${numHtml}`;
+            } else if(parsed.direction==="down"){
+              const numHtml=parsed.number?`<span class="gan-num">${parsed.number}</span>`:"";
+              td.innerHTML=`<span class="tri tri-down">▴</span>${numHtml}`;
+            } else if(String(ganRaw||"").trim()!==""){
+              td.innerHTML=`<span class="gan-num">${String(ganRaw)}</span>`;
+            } else td.innerHTML=`<span class="gan-num">–</span>`;
+            break;
+          case "Clase": td.className="clase"; td.innerText=claseVal||""; break;
+          case "Piloto": td.className="piloto"; td.innerText=pilotoVal||""; break;
+          case "Lic.": td.className="dorsal"; td.innerHTML=`<div class="dorsal-box"><span>${licVal||""}</span></div>`; break;
+          case "Equipo": td.className="equipo"; td.innerText=equipoVal||""; break;
+          case "Marca": td.className="marca"; td.innerHTML=marcaVal?`<img src="${marcaVal}" alt="Marca">`:""; break;
+          case "Espec.": td.className="spec"; td.innerText=especVal||""; break;
+          case "Vueltas": td.innerText=vueltasVal||""; break;
+          case "Tiempo": td.innerText=tiempoVal||""; break;
+          case "Mejor V.": td.innerText=mejorVVal||""; break;
+          case "Pits": td.innerText=pitsVal; break;
         }
-
         tr.appendChild(td);
       });
-
       tbody.appendChild(tr);
     });
 
@@ -93,3 +227,6 @@ fetch(url)
   })
   .catch(err => console.error(err));
 </script>
+
+</body>
+</html>
