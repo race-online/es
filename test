@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clasificación VRat3</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    background-color: #1e1e1e;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .banner {
+    width: 100%;
+    max-width: 1200px;
+    height: 120px;
+    margin: 0 auto 15px auto;
+    display: block;
+    background: url("https://i.ibb.co/mCH1pvVQ/banner.jpg") center/cover no-repeat;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .banner {
+      height: 80px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  th, td {
+    text-align: center;
+    white-space: nowrap;
+    height: 42px;
+    padding: 0 10px;
+    vertical-align: middle;
+    box-sizing: border-box;
+  }
+
+  th {
+    background-color: black;
+    font-weight: bold;
+    z-index: 5;
+  }
+
+  tr:nth-child(even) td { background-color: #282828; }
+  tr:nth-child(odd) td { background-color: #1e1e1e; }
+
+  .posicion-box {
+    display: inline-block;
+    background-color: #DD0000;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .posicion-box span { display: inline-block; transform: skew(20deg); }
+
+  .dorsal-box {
+    display: inline-block;
+    background-color: #FFFFFF;
+    color: black;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+  .dorsal-box span { display: inline-block; transform: skew(20deg); }
+
+  /* Indicador triángulo / rectángulo */
+  .triangulo {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 10px solid #00FF00;
+    margin: 0 auto;
+  }
+  .rectangulo {
+    display: inline-block;
+    width: 12px;
+    height: 6px;
+    background-color: #888;
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  td { font-size: 14px; line-height: 1.2; }
+  td.posicion, td.dorsal { font-size: 18px; font-weight: bold; }
+  td.piloto { font-weight: 600; }
+  td.vrat { font-weight: bold; }
+  td.equipo { min-width: 180px; }
+  td.marca img {
+    height: 38px;
+    width: 38px;
+    display: block;
+    margin: 2px auto;
+    object-fit: contain;
+  }
+
+  /* Columna indicador estrecha */
+  td.indicador, th.indicador {
+    width: 14px;
+    padding: 0;
+  }
+
+  @media (max-width: 768px) {
+    th, td { padding: 0 6px; font-size: 12px; line-height: 20px; }
+    .posicion-box, .dorsal-box { font-size: 16px; padding: 3px 8px; }
+    td.equipo { min-width: 140px; }
+    td.marca img { height: 24px; width: 24px; }
+
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+
+    /* Columnas fijas */
+    th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 3; background-color: #1e1e1e; }
+    th:nth-child(2), td:nth-child(2) { position: sticky; left: 70px; z-index: 3; background-color: #1e1e1e; }
+    th:nth-child(3), td:nth-child(3) { position: sticky; left: 140px; z-index: 3; background-color: #1e1e1e; }
+
+    /* Ajuste tabla en portrait */
+    table { width: 100%; min-width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner"></div>
+
+<div class="table-container">
+  <table id="clasificacion"></table>
+</div>
+
+<script>
+const sheetId = "1Jx8AvjYbslVL7zNIGkf58-4Pysbvjl0SWdD6XxkOlL8";
+const sheetName = "VRat3";
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+fetch(url)
+  .then(res => res.text())
+  .then(data => {
+    const json = JSON.parse(data.substr(47).slice(0, -2));
+
+    // Encabezados con Lic. en lugar de #
+    const cols = ["Posición","Clase","","Piloto","Lic.","Equipo","Marca","Espec.","VRat"];
+    const rows = json.table.rows;
+
+    const table = document.getElementById("clasificacion");
+
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    cols.forEach((col,i) => {
+      const th = document.createElement("th");
+      th.innerText = col;
+      if(i === 2) th.className = "indicador";
+      trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    rows.forEach((row, rowIndex) => {
+      const tr = document.createElement("tr");
+      cols.forEach((colName, i) => {
+        const td = document.createElement("td");
+
+        if(i === 0) {
+          const value = row.c[0]?.v || "";
+          td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
+          td.className = "posicion";
+        } else if(i === 1) {
+          td.className = "clase";
+          td.innerText = row.c[1]?.v || "";
+        } else if(i === 2) {
+          td.className = "indicador";
+          td.innerHTML = rowIndex < 18 ? '<div class="triangulo"></div>' : '<div class="rectangulo"></div>';
+        } else if(i === 3) {
+          td.className = "piloto";
+          td.innerText = row.c[2]?.v || "";
+        } else if(i === 4) {
+          td.className = "dorsal";
+          td.innerHTML = `<div class="dorsal-box"><span>${row.c[3]?.v || ""}</span></div>`;
+        } else if(i === 5) {
+          td.className = "equipo";
+          td.innerText = row.c[4]?.v || "";
+        } else if(i === 6) {
+          td.className = "marca";
+          td.innerHTML = `<img src="${row.c[5]?.v || ""}" alt="Marca">`;
+        } else if(i === 7) {
+          td.className = "spec";
+          td.innerText = row.c[6]?.v || "";
+        } else if(i === 8) {
+          td.className = "vrat";
+          const vratValue = (row.c[7] && row.c[7].v !== null && row.c[7].v !== "") ? row.c[7].v : 0;
+          td.innerText = vratValue;
+        }
+
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+  })
+  .catch(err => console.error(err));
+</script>
+</body>
+</html>
