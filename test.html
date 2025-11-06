@@ -23,13 +23,6 @@
     border-radius: 10px;
   }
 
-  @media (max-width: 768px) {
-    .banner {
-      height: 80px;
-      margin-bottom: 10px;
-    }
-  }
-
   .table-container {
     overflow-x: auto;
     width: 100%;
@@ -53,7 +46,6 @@
   th {
     background-color: black;
     font-weight: bold;
-    z-index: 5;
   }
 
   tr:nth-child(even) td {
@@ -116,14 +108,6 @@
     font-weight: bold;
   }
 
-  td.pen {
-    color: #ffffff;
-  }
-
-  td.equipo {
-    min-width: 180px;
-  }
-
   td.marca img {
     height: 38px;
     width: 38px;
@@ -132,71 +116,27 @@
     object-fit: contain;
   }
 
-  /* --- Fila de categoría --- */
-  .categoria-row td {
-    color: white;
-    font-weight: 700;
-    text-align: center;
-    font-size: 16px;
-    padding: 6px 0;
-    letter-spacing: 1px;
-  }
+  /* Fila de categoría */
+.categoria-row td {
+  color: white;
+  font-weight: 700;
+  text-align: left; /* cambia a izquierda */
+  font-size: 16px;
+  padding: 3px 0 3px 615px; /* <-- mueve el texto más a la izquierda */
+  letter-spacing: 1px;
+}
 
-  /* Fila HYPER azul */
-  .categoria-hyper td {
-    background-color: #0044cc;
-  }
+/* Degradado HYPER: rojo oscuro -> rojo original */
+.categoria-hyper td {
+  background: linear-gradient(to right, #aa0000, #DD0000, #ff3030);
+}
 
-  /* Fila LMGTE naranja */
-  .categoria-lmgte td {
-    background-color: #ff7f00;
-  }
+/* Degradado LMGTE: naranja oscuro -> naranja claro */
+.categoria-lmgte td {
+  background: linear-gradient(to right, #ad6401, #f38c00, #f3a741);
+}
 
-  /* --- Responsive --- */
-  @media (max-width: 768px) {
-    th, td {
-      padding: 0 6px;
-      font-size: 12px;
-      line-height: 20px;
-    }
-    .posicion-box, .dorsal-box {
-      font-size: 16px;
-      padding: 3px 8px;
-    }
-    td.equipo {
-      min-width: 140px;
-    }
-    td.marca img {
-      height: 24px;
-      width: 24px;
-    }
-    .table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      position: relative;
-    }
-    th:nth-child(1), td:nth-child(1) {
-      position: sticky;
-      left: 0;
-      z-index: 3;
-      background-color: #1e1e1e;
-    }
-    th:nth-child(2), td:nth-child(2) {
-      position: sticky;
-      left: 70px;
-      z-index: 3;
-      background-color: #1e1e1e;
-    }
-    th:nth-child(3), td:nth-child(3) {
-      position: sticky;
-      left: 140px;
-      z-index: 3;
-      background-color: #1e1e1e;
-    }
-    table {
-      min-width: 900px;
-    }
-  }
+
 </style>
 </head>
 <body>
@@ -220,7 +160,7 @@ fetch(url)
 
     const table = document.getElementById("clasificacion");
 
-    // --- Encabezado ---
+    // Encabezado
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
     cols.forEach(col => {
@@ -231,30 +171,30 @@ fetch(url)
     thead.appendChild(trHead);
     table.appendChild(thead);
 
-    // --- Cuerpo ---
+    // Cuerpo
     const tbody = document.createElement("tbody");
-    let contadorDeUnos = 0;
+
+    let claseActual = null;
 
     rows.forEach(row => {
-      const posCell = row.c[cols.indexOf("Posición")];
-      const posicion = posCell ? posCell.v : "";
+      const claseCell = row.c[cols.indexOf("Clase")];
+      const clase = claseCell ? claseCell.v : "";
 
-      if (posicion === 1) {
-        contadorDeUnos++;
-
+      // Detectar cambio de clase
+      if (clase && clase !== claseActual) {
+        claseActual = clase;
         const trCategoria = document.createElement("tr");
         trCategoria.classList.add("categoria-row");
 
-        const categoriaTexto = (contadorDeUnos === 1) ? "HYPER" : "LMGTE";
-        if (categoriaTexto === "HYPER") {
+        if (clase.toUpperCase().includes("HYPER")) {
           trCategoria.classList.add("categoria-hyper");
-        } else if (categoriaTexto === "LMGTE") {
+        } else if (clase.toUpperCase().includes("GTE")) {
           trCategoria.classList.add("categoria-lmgte");
         }
 
         const tdCat = document.createElement("td");
         tdCat.colSpan = cols.length;
-        tdCat.textContent = categoriaTexto;
+        tdCat.textContent = clase.toUpperCase();
         trCategoria.appendChild(tdCat);
         tbody.appendChild(trCategoria);
       }
