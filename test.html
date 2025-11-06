@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Clasificación VRat3</title>
+<title>Clasificación</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <style>
   body {
@@ -56,26 +56,18 @@
     z-index: 5;
   }
 
-  tr:nth-child(even) td { background-color: #282828; }
-  tr:nth-child(odd) td { background-color: #1e1e1e; }
+  tr:nth-child(even) td {
+    background-color: #282828;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #1e1e1e;
+  }
 
   .posicion-box {
     display: inline-block;
     background-color: #DD0000;
     color: white;
-    font-weight: bold;
-    font-size: 18px;
-    padding: 4px 10px;
-    transform: skew(-20deg);
-    min-width: 36px;
-    line-height: 1;
-  }
-  .posicion-box span { display: inline-block; transform: skew(20deg); }
-
-  .dorsal-box {
-    display: inline-block;
-    background-color: #FFFFFF;
-    color: black;
     font-weight: bold;
     font-size: 16px;
     padding: 4px 10px;
@@ -83,32 +75,55 @@
     min-width: 36px;
     line-height: 1;
   }
-  .dorsal-box span { display: inline-block; transform: skew(20deg); }
 
-  /* Indicador triángulo / rectángulo */
-  .triangulo {
+  .posicion-box span {
     display: inline-block;
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 10px solid #00FF00;
-    margin: 0 auto;
-  }
-  .rectangulo {
-    display: inline-block;
-    width: 12px;
-    height: 6px;
-    background-color: #888;
-    margin: 0 auto;
-    border-radius: 2px;
+    transform: skew(20deg);
   }
 
-  td { font-size: 14px; line-height: 1.2; }
-  td.posicion, td.dorsal { font-size: 18px; font-weight: bold; }
-  td.piloto { font-weight: 600; }
-  td.vrat { font-weight: bold; }
-  td.equipo { min-width: 180px; }
+  .dorsal-box {
+    display: inline-block;
+    background-color: #FFFFFF;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+
+  .dorsal-box span {
+    display: inline-block;
+    transform: skew(20deg);
+  }
+
+  td {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  td.posicion, td.dorsal {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  td.piloto {
+    font-weight: 600;
+  }
+
+  td.puntos {
+    font-weight: bold;
+  }
+
+  td.pen {
+    color: #ffffff;
+  }
+
+  td.equipo {
+    min-width: 180px;
+  }
+
   td.marca img {
     height: 38px;
     width: 38px;
@@ -117,36 +132,72 @@
     object-fit: contain;
   }
 
-  /* Columna indicador estrecha */
-  td.indicador, th.indicador {
-    width: 14px;
-    padding: 0;
+  /* --- Filas de categoría --- */
+  .categoria-row td {
+    color: white;
+    font-weight: 700;
+    text-align: center;
+    font-size: 16px;
+    padding: 6px 0;
+    letter-spacing: 1px;
   }
 
-  @media (max-width: 768px) {
-    th, td { padding: 0 6px; font-size: 12px; line-height: 20px; }
-    .posicion-box, .dorsal-box { font-size: 16px; padding: 3px 8px; }
-    td.equipo { min-width: 140px; }
-    td.marca img { height: 24px; width: 24px; }
+  .categoria-hyper td {
+    background-color: #0044cc; /* Azul */
+  }
 
+  .categoria-lmgte td {
+    background-color: #ff7f00; /* Naranja */
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 768px) {
+    th, td {
+      padding: 0 6px;
+      font-size: 12px;
+      line-height: 20px;
+    }
+    .posicion-box, .dorsal-box {
+      font-size: 16px;
+      padding: 3px 8px;
+    }
+    td.equipo {
+      min-width: 140px;
+    }
+    td.marca img {
+      height: 24px;
+      width: 24px;
+    }
     .table-container {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       position: relative;
     }
-
-    /* Columnas fijas */
-    th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 3; background-color: #1e1e1e; }
-    th:nth-child(2), td:nth-child(2) { position: sticky; left: 70px; z-index: 3; background-color: #1e1e1e; }
-    th:nth-child(3), td:nth-child(3) { position: sticky; left: 140px; z-index: 3; background-color: #1e1e1e; }
-
-    /* Ajuste tabla en portrait */
-    table { width: 100%; min-width: auto; }
+    th:nth-child(1), td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background-color: #1e1e1e;
+    }
+    th:nth-child(2), td:nth-child(2) {
+      position: sticky;
+      left: 70px;
+      z-index: 3;
+      background-color: #1e1e1e;
+    }
+    th:nth-child(3), td:nth-child(3) {
+      position: sticky;
+      left: 140px;
+      z-index: 3;
+      background-color: #1e1e1e;
+    }
+    table {
+      min-width: 900px;
+    }
   }
 </style>
 </head>
 <body>
-
 <div class="banner"></div>
 
 <div class="table-container">
@@ -154,73 +205,83 @@
 </div>
 
 <script>
-const sheetId = "1Jx8AvjYbslVL7zNIGkf58-4Pysbvjl0SWdD6XxkOlL8";
-const sheetName = "VRat3";
+const sheetId = "12HWmHpL6tCdlngBcRUatlYEEywwSSIJTMgDcTLPMhx0";
+const sheetName = "Clas3";
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
 fetch(url)
   .then(res => res.text())
   .then(data => {
     const json = JSON.parse(data.substr(47).slice(0, -2));
-
-    // Encabezados con Lic. en lugar de #
-    const cols = ["Posición","Clase","","Piloto","Lic.","Equipo","Marca","Espec.","VRat"];
+    const cols = json.table.cols.map(c => c.label);
     const rows = json.table.rows;
 
     const table = document.getElementById("clasificacion");
 
+    // --- Encabezado ---
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
-    cols.forEach((col,i) => {
+    cols.forEach(col => {
       const th = document.createElement("th");
-      th.innerText = col;
-      if(i === 2) th.className = "indicador";
+      th.innerText = (col === "#") ? "Lic." : col;
       trHead.appendChild(th);
     });
     thead.appendChild(trHead);
     table.appendChild(thead);
 
+    // --- Cuerpo ---
     const tbody = document.createElement("tbody");
-    rows.forEach((row, rowIndex) => {
-      const tr = document.createElement("tr");
-      cols.forEach((colName, i) => {
-        const td = document.createElement("td");
+    let contadorDeUnos = 0;
 
-        if(i === 0) {
-          const value = row.c[0]?.v || "";
+    rows.forEach(row => {
+      const posCell = row.c[cols.indexOf("Posición")];
+      const posicion = posCell ? posCell.v : "";
+
+      if (posicion === 1) {
+        contadorDeUnos++;
+
+        const trCategoria = document.createElement("tr");
+        trCategoria.classList.add("categoria-row");
+
+        const categoriaTexto = (contadorDeUnos === 1) ? "HYPER" : "LMGTE";
+        if (categoriaTexto === "HYPER") {
+          trCategoria.classList.add("categoria-hyper");
+        } else if (categoriaTexto === "LMGTE") {
+          trCategoria.classList.add("categoria-lmgte");
+        }
+
+        const tdCat = document.createElement("td");
+        tdCat.colSpan = cols.length;
+        tdCat.textContent = categoriaTexto;
+        trCategoria.appendChild(tdCat);
+        tbody.appendChild(trCategoria);
+      }
+
+      const tr = document.createElement("tr");
+      row.c.forEach((cell, i) => {
+        const td = document.createElement("td");
+        const colName = cols[i];
+        let value = cell ? cell.v : "";
+
+        if (colName === "Posición") {
           td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
           td.className = "posicion";
-        } else if(i === 1) {
-          td.className = "clase";
-          td.innerText = row.c[1]?.v || "";
-        } else if(i === 2) {
-          td.className = "indicador";
-          td.innerHTML = rowIndex < 18 ? '<div class="triangulo"></div>' : '<div class="rectangulo"></div>';
-        } else if(i === 3) {
-          td.className = "piloto";
-          td.innerText = row.c[2]?.v || "";
-        } else if(i === 4) {
+        } else if (colName === "#") {
+          td.innerHTML = `<div class="dorsal-box"><span>${value}</span></div>`;
           td.className = "dorsal";
-          td.innerHTML = `<div class="dorsal-box"><span>${row.c[3]?.v || ""}</span></div>`;
-        } else if(i === 5) {
-          td.className = "equipo";
-          td.innerText = row.c[4]?.v || "";
-        } else if(i === 6) {
+        } else if (colName === "Marca") {
           td.className = "marca";
-          td.innerHTML = `<img src="${row.c[5]?.v || ""}" alt="Marca">`;
-        } else if(i === 7) {
-          td.className = "spec";
-          td.innerText = row.c[6]?.v || "";
-        } else if(i === 8) {
-          td.className = "vrat";
-          const vratValue = (row.c[7] && row.c[7].v !== null && row.c[7].v !== "") ? row.c[7].v : 0;
-          td.innerText = vratValue;
+          td.innerHTML = `<img src="${value}" alt="Marca">`;
+        } else {
+          td.innerText = value;
+          td.className = colName.toLowerCase();
         }
 
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
     });
+
     table.appendChild(tbody);
   })
   .catch(err => console.error(err));
