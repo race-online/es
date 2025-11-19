@@ -116,26 +116,35 @@
     object-fit: contain;
   }
 
-  /* Fila de categoría */
-  .categoria-row td {
-    color: white;
-    font-weight: 700;
-    text-align: left;
-    font-size: 18px;
-    padding: 8px 0 8px 120px; /* alineado con columna Equipo */
-    letter-spacing: 1px;
-  }
+ /* Filas de categoría */
+.categoria-row td {
+  color: white;
+  font-weight: 700;
+  text-align: left;
+  font-size: 16px;
+  padding: 3px 0 3px 854px;
+  letter-spacing: 1px;
+}
 
-  /* Degradados más contrastados */
-  .categoria-hyper td {
-    background: linear-gradient(to right, #5a0000 0%, #DD0000 60%, #ff4444 100%) !important;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-  }
+/* HYPER */
+.categoria-hyper td {
+  background: linear-gradient(to right, #aa0000, #DD0000, #ff3030);
+}
 
-  .categoria-lmgte td {
-    background: linear-gradient(to right, #7a3f00 0%, #f38c00 60%, #ffb84d 100%) !important;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
-  }
+/* LMGTE */
+.categoria-lmgte td {
+  background: linear-gradient(to right, #ad6401, #f38c00, #f3a741);
+}
+
+/* LMP2 – azul racing */
+.categoria-lmp2 td {
+  background: linear-gradient(to right, #003366, #0055aa, #3399ff);
+}
+
+/* GT3 – verde racing */
+.categoria-gt3 td {
+  background: linear-gradient(to right, #005c1a, #009933, #33cc66);
+}
 
 </style>
 </head>
@@ -180,21 +189,30 @@ fetch(url)
       const claseCell = row.c[cols.indexOf("Clase")];
       const clase = claseCell ? claseCell.v : "";
 
-      // Detectar cambio de clase (HYPER o LMGTE)
+      // Detectar cambio de clase
       if (clase && clase !== claseActual) {
         claseActual = clase;
         const trCategoria = document.createElement("tr");
         trCategoria.classList.add("categoria-row");
 
-        if (clase.toUpperCase().includes("HYPER")) {
+        const claseUpper = clase.toUpperCase();
+
+        if (claseUpper.includes("HYPER")) {
           trCategoria.classList.add("categoria-hyper");
-        } else if (clase.toUpperCase().includes("GTE")) {
+
+        } else if (claseUpper.includes("GTE")) {
           trCategoria.classList.add("categoria-lmgte");
+
+        } else if (claseUpper.includes("LMP2")) {
+          trCategoria.classList.add("categoria-lmp2");
+
+        } else if (claseUpper.includes("GT3")) {
+          trCategoria.classList.add("categoria-gt3");
         }
 
         const tdCat = document.createElement("td");
         tdCat.colSpan = cols.length;
-        tdCat.textContent = clase.toUpperCase();
+        tdCat.textContent = claseUpper;
         trCategoria.appendChild(tdCat);
         tbody.appendChild(trCategoria);
       }
@@ -208,12 +226,15 @@ fetch(url)
         if (colName === "Posición") {
           td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
           td.className = "posicion";
+
         } else if (colName === "#") {
           td.innerHTML = `<div class="dorsal-box"><span>${value}</span></div>`;
           td.className = "dorsal";
+
         } else if (colName === "Marca") {
           td.className = "marca";
           td.innerHTML = `<img src="${value}" alt="Marca">`;
+
         } else {
           td.innerText = value;
           td.className = colName.toLowerCase();
