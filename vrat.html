@@ -85,14 +85,19 @@
   }
   .dorsal-box span { display: inline-block; transform: skew(20deg); }
 
-  /* Indicador triángulo / rectángulo */
+  /* Indicadores */
   .triangulo {
-    display: inline-block;
-    width: 0;
-    height: 0;
+    width: 0; height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-bottom: 10px solid #00FF00;
+    border-bottom: 10px solid #00FF00; /* flecha hacia arriba verde */
+    margin: 0 auto;
+  }
+  .triangulo-rojo {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid #FF0000; /* triángulo hacia abajo rojo */
     margin: 0 auto;
   }
   .rectangulo {
@@ -117,10 +122,34 @@
     object-fit: contain;
   }
 
-  /* Columna indicador estrecha */
   td.indicador, th.indicador {
     width: 14px;
     padding: 0;
+  }
+
+  /* Filas de categoría */
+  .categoria-row td {
+    height: 32px !important;
+    padding: 2px 0 2px 885px !important;
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* Colores de categoría */
+  .categoria-hyper td {
+    background: linear-gradient(to right, #aa0000, #DD0000, #ff3030);
+  }
+  .categoria-lmgte td {
+    background: linear-gradient(to right, #ad6401, #f38c00, #f3a741);
+  }
+  .categoria-lmp2 td {
+    background: linear-gradient(to right, #003366, #0055aa, #3399ff);
+  }
+  .categoria-gt3 td {
+    background: linear-gradient(to right, #005c1a, #009933, #33cc66);
   }
 
   @media (max-width: 768px) {
@@ -132,16 +161,7 @@
     .table-container {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      position: relative;
     }
-
-    /* Columnas fijas */
-    th:nth-child(1), td:nth-child(1) { position: sticky; left: 0; z-index: 3; background-color: #1e1e1e; }
-    th:nth-child(2), td:nth-child(2) { position: sticky; left: 70px; z-index: 3; background-color: #1e1e1e; }
-    th:nth-child(3), td:nth-child(3) { position: sticky; left: 140px; z-index: 3; background-color: #1e1e1e; }
-
-    /* Ajuste tabla en portrait */
-    table { width: 100%; min-width: auto; }
   }
 </style>
 </head>
@@ -162,65 +182,150 @@ fetch(url)
   .then(res => res.text())
   .then(data => {
     const json = JSON.parse(data.substr(47).slice(0, -2));
-
-    // Encabezados con Lic. en lugar de #
     const cols = ["Posición","Clase","","Piloto","Lic.","Equipo","Marca","Espec.","VRat"];
     const rows = json.table.rows;
 
     const table = document.getElementById("clasificacion");
 
+    // ----- Primera pasada: calcular total por clase -----
+    const classTotals = {};
+    rows.forEach(r => {
+      const clase = (r.c[1]?.v || "").toString().trim();
+      if (!clase) return;
+      const cu = clase.toUpperCase();
+      classTotals[cu] = (classTotals[cu] || 0) + 1;
+    });
+
+    // ----- Encabezado -----
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
     cols.forEach((col,i) => {
       const th = document.createElement("th");
       th.innerText = col;
-      if(i === 2) th.className = "indicador";
+      if (i === 2) th.className = "indicador";
       trHead.appendChild(th);
     });
     thead.appendChild(trHead);
     table.appendChild(thead);
 
+    // ----- Segunda pasada: renderizar con lógica por clase -----
     const tbody = document.createElement("tbody");
-    rows.forEach((row, rowIndex) => {
+    const claseCounters = {}; // contador por clase para posición dentro de la clase
+    let claseActual = null;
+
+    rows.forEach((row) => {
+      const clase = (row.c[1]?.v || "").toString().trim();
+      const claseUp = clase.toUpperCase();
+
+      // Si la fila no tiene clase, la tratamos como datos normales (puede ocurrir)
+      if (clase) {
+        if (!claseCounters[claseUp]) claseCounters[claseUp] = 0;
+
+        // Si la clase cambia, añadimos fila de cabecera de categoría
+        if (clase !== claseActual) {
+          claseActual = clase;
+          const trCat = document.createElement("tr");
+          trCat.classList.add("categoria-row");
+          if (claseUp.includes("HYPER")) trCat.classList.add("categoria-hyper");
+          else if (claseUp.includes("GTE")) trCat.classList.add("categoria-lmgte");
+          else if (claseUp.includes("LMP2")) trCat.classList.add("categoria-lmp2");
+          else if (claseUp.includes("GT3")) trCat.classList.add("categoria-gt3");
+
+          const tdCat = document.createElement("td");
+          tdCat.colSpan = cols.length;
+          tdCat.innerText = claseUp;
+          trCat.appendChild(tdCat);
+          tbody.appendChild(trCat);
+        }
+
+        // Incrementar contador dentro de la clase (posición relativa)
+        claseCounters[claseUp]++;
+
+      } else {
+        // fila sin clase: no incrementamos contador ni hacemos cabecera
+      }
+
+      // Crear fila de datos
       const tr = document.createElement("tr");
+
       cols.forEach((colName, i) => {
         const td = document.createElement("td");
 
-        if(i === 0) {
-          const value = row.c[0]?.v || "";
-          td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
+        if (i === 0) {
+          td.innerHTML = `<div class="posicion-box"><span>${row.c[0]?.v || ""}</span></div>`;
           td.className = "posicion";
-        } else if(i === 1) {
+
+        } else if (i === 1) {
           td.className = "clase";
           td.innerText = row.c[1]?.v || "";
-        } else if(i === 2) {
+
+        } else if (i === 2) {
           td.className = "indicador";
-          td.innerHTML = rowIndex < 18 ? '<div class="triangulo"></div>' : '<div class="rectangulo"></div>';
-        } else if(i === 3) {
+
+          // Determinar indicador según la clase y la posición dentro de la clase
+          let indicadorHTML = `<div class="rectangulo"></div>`; // por defecto gris
+
+          if (clase) {
+            const posEnClase = claseCounters[claseUp] || 0;
+            const totalEnClase = classTotals[claseUp] || 0;
+
+            // LMP2: primeros 8 verde, últimos 2 triángulo rojo hacia abajo, el resto gris
+            if (claseUp.includes("LMP2")) {
+              if (posEnClase <= 8) {
+                indicadorHTML = `<div class="triangulo"></div>`;
+              } else if (posEnClase > totalEnClase - 2) {
+                // últimos 2 -> triángulo rojo hacia abajo
+                indicadorHTML = `<div class="triangulo-rojo"></div>`;
+              } else {
+                indicadorHTML = `<div class="rectangulo"></div>`;
+              }
+            }
+            // LMGTE / GTE: primeros 6 verde, resto gris
+            else if (claseUp.includes("GTE") || claseUp.includes("LMGTE")) {
+              if (posEnClase <= 6) indicadorHTML = `<div class="triangulo"></div>`;
+              else indicadorHTML = `<div class="rectangulo"></div>`;
+            }
+            // otras clases: mantener gris por defecto (o adaptar si quieres)
+            else {
+              indicadorHTML = `<div class="rectangulo"></div>`;
+            }
+          } else {
+            indicadorHTML = `<div class="rectangulo"></div>`;
+          }
+
+          td.innerHTML = indicadorHTML;
+
+        } else if (i === 3) {
           td.className = "piloto";
           td.innerText = row.c[2]?.v || "";
-        } else if(i === 4) {
+
+        } else if (i === 4) {
           td.className = "dorsal";
           td.innerHTML = `<div class="dorsal-box"><span>${row.c[3]?.v || ""}</span></div>`;
-        } else if(i === 5) {
+
+        } else if (i === 5) {
           td.className = "equipo";
           td.innerText = row.c[4]?.v || "";
-        } else if(i === 6) {
+
+        } else if (i === 6) {
           td.className = "marca";
           td.innerHTML = `<img src="${row.c[5]?.v || ""}" alt="Marca">`;
-        } else if(i === 7) {
+
+        } else if (i === 7) {
           td.className = "spec";
           td.innerText = row.c[6]?.v || "";
-        } else if(i === 8) {
+
+        } else if (i === 8) {
           td.className = "vrat";
-          const vratValue = (row.c[7] && row.c[7].v !== null && row.c[7].v !== "") ? row.c[7].v : 0;
-          td.innerText = vratValue;
+          td.innerText = row.c[7]?.v || 0;
         }
 
         tr.appendChild(td);
       });
+
       tbody.appendChild(tr);
     });
+
     table.appendChild(tbody);
   })
   .catch(err => console.error(err));
