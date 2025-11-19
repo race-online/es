@@ -133,6 +133,12 @@
     object-fit: contain;
   }
 
+  /* NUEVAS CLASES PARA R1, R2, R3, R4 */
+  td.r1 { }
+  td.r2 { }
+  td.r3 { }
+  td.r4 { }
+
   @media (max-width: 768px) {
     th, td {
       padding: 0 6px;
@@ -201,21 +207,31 @@ fetch(url)
 
     const table = document.getElementById("clasificacion");
 
+    /* ---------------- ENCABEZADO ---------------- */
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
+
     cols.forEach(col => {
       const th = document.createElement("th");
-      // Cambiamos "Piloto" → "Pilotos"
+
       if (col === "Piloto") th.innerText = "Pilotos";
+      else if (col === "COTA") th.innerText = "R1";
+      else if (col === "INT")  th.innerText = "R2";
+      else if (col === "BAH")  th.innerText = "R3";
+      else if (col === "FUJ")  th.innerText = "R4";
       else th.innerText = col;
+
       trHead.appendChild(th);
     });
+
     thead.appendChild(trHead);
     table.appendChild(thead);
 
+    /* ---------------- FILAS / CUERPO ---------------- */
     const tbody = document.createElement("tbody");
     rows.forEach(row => {
       const tr = document.createElement("tr");
+
       row.c.forEach((cell, i) => {
         const td = document.createElement("td");
         let value = cell ? cell.v : "";
@@ -224,25 +240,43 @@ fetch(url)
         if (colName === "Posición") {
           td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
           td.className = "posicion";
+
         } else if (colName === "Piloto") {
           td.className = "piloto";
           td.innerText = value;
+
         } else if (colName === "Equipo") {
           td.className = "equipo";
           td.innerText = value;
+
         } else if (colName === "Puntos") {
           td.className = "puntos";
           td.innerText = value;
-        } else if (["COTA", "INT", "BAH", "FUJ", "Pen"].includes(colName)) {
-          td.className = colName.toLowerCase();
+
+        /* Nuevas columnas renombradas */
+        } else if (["COTA", "INT", "BAH", "FUJ"].includes(colName)) {
+
+          if (colName === "COTA") td.className = "r1";
+          if (colName === "INT")  td.className = "r2";
+          if (colName === "BAH")  td.className = "r3";
+          if (colName === "FUJ")  td.className = "r4";
+
           td.innerText = value;
+
+        } else if (colName === "Pen") {
+          td.className = "pen";
+          td.innerText = value;
+
         } else {
           td.innerText = value;
         }
+
         tr.appendChild(td);
       });
+
       tbody.appendChild(tr);
     });
+
     table.appendChild(tbody);
   })
   .catch(err => console.error(err));
