@@ -1,18 +1,232 @@
-// Detectar cambio de clase
-if (clase && clase !== claseActual) {
-  claseActual = clase;
-  const trCategoria = document.createElement("tr");
-  trCategoria.classList.add("categoria-row");
-
-  if (clase.toUpperCase().includes("HYPER")) {
-    trCategoria.classList.add("categoria-hyper");
-  } else if (clase.toUpperCase().includes("GTE")) {
-    trCategoria.classList.add("categoria-lmgte");
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Clasificación</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    background-color: #1e1e1e;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    margin: 0;
+    padding: 20px;
   }
 
-  const tdCat = document.createElement("td");
-  tdCat.colSpan = cols.length;
-  tdCat.textContent = clase.toUpperCase();
-  trCategoria.appendChild(tdCat);
-  tbody.appendChild(trCategoria);
-}
+  .banner {
+    width: 100%;
+    max-width: 1200px;
+    height: 120px;
+    margin: 0 auto 15px auto;
+    display: block;
+    background: url("https://i.ibb.co/mCH1pvVQ/banner.jpg") center/cover no-repeat;
+    border-radius: 10px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  th, td {
+    text-align: center;
+    white-space: nowrap;
+    height: 42px;
+    padding: 0 10px;
+    vertical-align: middle;
+    box-sizing: border-box;
+  }
+
+  th {
+    background-color: black;
+    font-weight: bold;
+  }
+
+  tr:nth-child(even) td {
+    background-color: #282828;
+  }
+
+  tr:nth-child(odd) td {
+    background-color: #1e1e1e;
+  }
+
+  .posicion-box {
+    display: inline-block;
+    background-color: #DD0000;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+
+  .posicion-box span {
+    display: inline-block;
+    transform: skew(20deg);
+  }
+
+  .dorsal-box {
+    display: inline-block;
+    background-color: #FFFFFF;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px 10px;
+    transform: skew(-20deg);
+    min-width: 36px;
+    line-height: 1;
+  }
+
+  .dorsal-box span {
+    display: inline-block;
+    transform: skew(20deg);
+  }
+
+  td {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  td.posicion, td.dorsal {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  td.piloto {
+    font-weight: 600;
+  }
+
+  td.puntos {
+    font-weight: bold;
+  }
+
+  td.marca img {
+    height: 38px;
+    width: 38px;
+    display: block;
+    margin: 2px auto;
+    object-fit: contain;
+  }
+
+  /* Fila de categoría */
+  .categoria-row td {
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    font-size: 18px;
+    padding: 8px 0 8px 120px; /* alineado con columna Equipo */
+    letter-spacing: 1px;
+  }
+
+  /* Degradados más contrastados */
+  .categoria-hyper td {
+    background: linear-gradient(to right, #5a0000 0%, #DD0000 60%, #ff4444 100%) !important;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  }
+
+  .categoria-lmgte td {
+    background: linear-gradient(to right, #7a3f00 0%, #f38c00 60%, #ffb84d 100%) !important;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+  }
+
+</style>
+</head>
+<body>
+<div class="banner"></div>
+
+<div class="table-container">
+  <table id="clasificacion"></table>
+</div>
+
+<script>
+const sheetId = "12HWmHpL6tCdlngBcRUatlYEEywwSSIJTMgDcTLPMhx0";
+const sheetName = "Clas3";
+const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+fetch(url)
+  .then(res => res.text())
+  .then(data => {
+    const json = JSON.parse(data.substr(47).slice(0, -2));
+    const cols = json.table.cols.map(c => c.label);
+    const rows = json.table.rows;
+
+    const table = document.getElementById("clasificacion");
+
+    // Encabezado
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    cols.forEach(col => {
+      const th = document.createElement("th");
+      th.innerText = (col === "#") ? "Lic." : col;
+      trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    // Cuerpo
+    const tbody = document.createElement("tbody");
+
+    let claseActual = null;
+
+    rows.forEach(row => {
+      const claseCell = row.c[cols.indexOf("Clase")];
+      const clase = claseCell ? claseCell.v : "";
+
+      // Detectar cambio de clase (HYPER o LMGTE)
+      if (clase && clase !== claseActual) {
+        claseActual = clase;
+        const trCategoria = document.createElement("tr");
+        trCategoria.classList.add("categoria-row");
+
+        if (clase.toUpperCase().includes("HYPER")) {
+          trCategoria.classList.add("categoria-hyper");
+        } else if (clase.toUpperCase().includes("GTE")) {
+          trCategoria.classList.add("categoria-lmgte");
+        }
+
+        const tdCat = document.createElement("td");
+        tdCat.colSpan = cols.length;
+        tdCat.textContent = clase.toUpperCase();
+        trCategoria.appendChild(tdCat);
+        tbody.appendChild(trCategoria);
+      }
+
+      const tr = document.createElement("tr");
+      row.c.forEach((cell, i) => {
+        const td = document.createElement("td");
+        const colName = cols[i];
+        let value = cell ? cell.v : "";
+
+        if (colName === "Posición") {
+          td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
+          td.className = "posicion";
+        } else if (colName === "#") {
+          td.innerHTML = `<div class="dorsal-box"><span>${value}</span></div>`;
+          td.className = "dorsal";
+        } else if (colName === "Marca") {
+          td.className = "marca";
+          td.innerHTML = `<img src="${value}" alt="Marca">`;
+        } else {
+          td.innerText = value;
+          td.className = colName.toLowerCase();
+        }
+
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+  })
+  .catch(err => console.error(err));
+</script>
+</body>
+</html>
