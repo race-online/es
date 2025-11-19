@@ -13,22 +13,14 @@
     padding: 20px;
   }
 
-  /* --- Banner horizontal --- */
   .banner {
     width: 100%;
     max-width: 1200px;
-    height: 120px; /* escritorio */
+    height: 120px;
     margin: 0 auto 15px auto;
     display: block;
     background: url("https://i.ibb.co/mCH1pvVQ/banner.jpg") center/cover no-repeat;
     border-radius: 10px;
-  }
-
-  @media (max-width: 768px) {
-    .banner {
-      height: 80px; /* móvil */
-      margin-bottom: 10px;
-    }
   }
 
   .table-container {
@@ -54,7 +46,6 @@
   th {
     background-color: black;
     font-weight: bold;
-    z-index: 5;
   }
 
   tr:nth-child(even) td {
@@ -117,14 +108,6 @@
     font-weight: bold;
   }
 
-  td.pen {
-    color: #ffffff;
-  }
-
-  td.equipo {
-    min-width: 180px;
-  }
-
   td.marca img {
     height: 38px;
     width: 38px;
@@ -133,57 +116,41 @@
     object-fit: contain;
   }
 
-  /* --- Responsive con columnas fijas --- */
-  @media (max-width: 768px) {
-    th, td {
-      padding: 0 6px;
-      font-size: 12px;
-      line-height: 20px;
-    }
-    .posicion-box, .dorsal-box {
-      font-size: 16px;
-      padding: 3px 8px;
-    }
-    td.equipo {
-      min-width: 140px;
-    }
-    td.marca img {
-      height: 24px;
-      width: 24px;
-    }
-    .table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      position: relative;
-    }
+/* Filas de categoría (más bajas) */
+.categoria-row td {
+  height: 32px !important;        /* ← altura reducida */
+  padding: 2px 0 2px 854px !important;
+  color: white;
+  font-weight: 700;
+  text-align: left;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
 
-    /* Columnas fijas */
-    th:nth-child(1), td:nth-child(1) {
-      position: sticky;
-      left: 0;
-      z-index: 3;
-      background-color: #1e1e1e;
-    }
-    th:nth-child(2), td:nth-child(2) {
-      position: sticky;
-      left: 70px;
-      z-index: 3;
-      background-color: #1e1e1e;
-    }
-    th:nth-child(3), td:nth-child(3) {
-      position: sticky;
-      left: 140px;
-      z-index: 3;
-      background-color: #1e1e1e;
-    }
-    table {
-      min-width: 900px;
-    }
-  }
+
+/* HYPER */
+.categoria-hyper td {
+  background: linear-gradient(to right, #aa0000, #DD0000, #ff3030);
+}
+
+/* LMGTE */
+.categoria-lmgte td {
+  background: linear-gradient(to right, #ad6401, #f38c00, #f3a741);
+}
+
+/* LMP2 – azul racing */
+.categoria-lmp2 td {
+  background: linear-gradient(to right, #003366, #0055aa, #3399ff);
+}
+
+/* GT3 – verde racing */
+.categoria-gt3 td {
+  background: linear-gradient(to right, #005c1a, #009933, #33cc66);
+}
+
 </style>
 </head>
 <body>
-<!-- Banner horizontal -->
 <div class="banner"></div>
 
 <div class="table-container">
@@ -204,73 +171,82 @@ fetch(url)
 
     const table = document.getElementById("clasificacion");
 
-    // --- Crear encabezado ---
+    // Encabezado
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
     cols.forEach(col => {
       const th = document.createElement("th");
-      th.innerText = (col === "#") ? "Lic." : col; // Cambiamos # por Lic.
+      th.innerText = (col === "#") ? "Lic." : col;
       trHead.appendChild(th);
     });
     thead.appendChild(trHead);
     table.appendChild(thead);
 
-    // --- Crear cuerpo de tabla ---
+    // Cuerpo
     const tbody = document.createElement("tbody");
+
+    let claseActual = null;
+
     rows.forEach(row => {
+      const claseCell = row.c[cols.indexOf("Clase")];
+      const clase = claseCell ? claseCell.v : "";
+
+      // Detectar cambio de clase
+      if (clase && clase !== claseActual) {
+        claseActual = clase;
+        const trCategoria = document.createElement("tr");
+        trCategoria.classList.add("categoria-row");
+
+        const claseUpper = clase.toUpperCase();
+
+        if (claseUpper.includes("HYPER")) {
+          trCategoria.classList.add("categoria-hyper");
+
+        } else if (claseUpper.includes("GTE")) {
+          trCategoria.classList.add("categoria-lmgte");
+
+        } else if (claseUpper.includes("LMP2")) {
+          trCategoria.classList.add("categoria-lmp2");
+
+        } else if (claseUpper.includes("GT3")) {
+          trCategoria.classList.add("categoria-gt3");
+        }
+
+        const tdCat = document.createElement("td");
+        tdCat.colSpan = cols.length;
+        tdCat.textContent = claseUpper;
+        trCategoria.appendChild(tdCat);
+        tbody.appendChild(trCategoria);
+      }
+
       const tr = document.createElement("tr");
       row.c.forEach((cell, i) => {
         const td = document.createElement("td");
-        let value = cell ? cell.v : "";
         const colName = cols[i];
+        let value = cell ? cell.v : "";
 
         if (colName === "Posición") {
           td.innerHTML = `<div class="posicion-box"><span>${value}</span></div>`;
           td.className = "posicion";
+
         } else if (colName === "#") {
           td.innerHTML = `<div class="dorsal-box"><span>${value}</span></div>`;
           td.className = "dorsal";
-        } else if (colName === "Clase") {
-          td.className = "clase";
-          td.innerText = value;
-        } else if (colName === "Piloto") {
-          td.className = "piloto";
-          td.innerText = value;
-        } else if (colName === "Equipo") {
-          td.className = "equipo";
-          td.innerText = value;
+
         } else if (colName === "Marca") {
           td.className = "marca";
           td.innerHTML = `<img src="${value}" alt="Marca">`;
-        } else if (colName === "Spec") {
-          td.className = "spec";
-          td.innerText = value;
-        } else if (colName === "COTA") {
-          td.className = "cota";
-          td.innerText = value;
-        } else if (colName === "INTE") {
-          td.className = "inte";
-          td.innerText = value;
-        } else if (colName === "BAHR") {
-          td.className = "bahr";
-          td.innerText = value;
-        } else if (colName === "FUJI") {
-          td.className = "fuji";
-          td.innerText = value;
-        } else if (colName === "Puntos") {
-          td.className = "puntos";
-          td.innerText = value;
-        } else if (colName === "Pen") {
-          td.className = "pen";
-          td.innerText = value;
+
         } else {
           td.innerText = value;
+          td.className = colName.toLowerCase();
         }
 
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
     });
+
     table.appendChild(tbody);
   })
   .catch(err => console.error(err));
