@@ -100,6 +100,38 @@
     td.clase { padding-left: 3px; }
   }
   /* ============================================== */
+
+  /* ==== ESTILOS DE FILA CATEGORÍA (desde segundo HTML) ==== */
+  .categoria-row td {
+    height: 32px !important;
+    padding: 2px 0 2px 30px !important; /* ajustado para que se vea bien en tu layout */
+    color: white;
+    font-weight: 700;
+    text-align: left;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* HYPER */
+  .categoria-hyper td {
+    background: linear-gradient(to right, #aa0000, #DD0000, #ff3030);
+  }
+
+  /* LMGTE */
+  .categoria-lmgte td {
+    background: linear-gradient(to right, #ad6401, #f38c00, #f3a741);
+  }
+
+  /* LMP2 – azul racing */
+  .categoria-lmp2 td {
+    background: linear-gradient(to right, #003366, #0055aa, #3399ff);
+  }
+
+  /* GT3 – verde racing */
+  .categoria-gt3 td {
+    background: linear-gradient(to right, #005c1a, #009933, #33cc66);
+  }
+  /* ======================================================= */
 </style>
 </head>
 <body>
@@ -147,13 +179,17 @@ fetch(url)
     const table = document.getElementById("clasificacion");
     table.innerHTML = "";
 
+    // HEADER
     const thead = document.createElement("thead");
     const trHead = document.createElement("tr");
     encabezados.forEach(h => { const th = document.createElement("th"); th.innerText = h; trHead.appendChild(th); });
     thead.appendChild(trHead);
     table.appendChild(thead);
 
+    // BODY
     const tbody = document.createElement("tbody");
+
+    // índices según columnas del sheet (si no existen, serán -1)
     const idxs = {
       Posición: cols.indexOf("Posición"),
       Ganper: cols.indexOf("Gan/per") !== -1 ? cols.indexOf("Gan/per") : (cols.indexOf("Var") !== -1 ? cols.indexOf("Var") : -1),
@@ -169,14 +205,47 @@ fetch(url)
       Pits: cols.indexOf("Pits")
     };
 
+    let claseActualNorm = "";
+
     rows.forEach(row => {
-      const tr = document.createElement("tr");
       const rowVals = (row.c || []).map(c => (c && c.v != null ? c.v : ""));
       const get = i => (i!==-1 ? (rowVals[i]!==undefined ? rowVals[i] : "") : "");
 
+      // obtener valor de la clase (col C en tu sheet)
+      const claseValRaw = get(idxs.Clase) || "";
+      const claseVal = String(claseValRaw).trim();
+      const claseNorm = claseVal.toUpperCase();
+
+      // Si hay cambio de clase (y la clase no está vacía) añadimos la fila separadora
+      if (claseNorm && claseNorm !== claseActualNorm) {
+        claseActualNorm = claseNorm;
+        const trCategoria = document.createElement("tr");
+        trCategoria.classList.add("categoria-row");
+
+        // añadir clase específica para estilos
+        if (claseNorm.includes("HYPER")) {
+          trCategoria.classList.add("categoria-hyper");
+        } else if (claseNorm.includes("GTE") || claseNorm.includes("LMGTE")) {
+          trCategoria.classList.add("categoria-lmgte");
+        } else if (claseNorm.includes("LMP2")) {
+          trCategoria.classList.add("categoria-lmp2");
+        } else if (claseNorm.includes("GT3")) {
+          trCategoria.classList.add("categoria-gt3");
+        }
+
+        const tdCat = document.createElement("td");
+        tdCat.colSpan = encabezados.length;
+        tdCat.textContent = claseNorm;
+        trCategoria.appendChild(tdCat);
+        tbody.appendChild(trCategoria);
+      }
+
+      // Construir la fila de datos normal
+      const tr = document.createElement("tr");
+
+      // extraer valores individuales
       const posVal = get(idxs.Posición);
       const ganRaw = get(idxs.Ganper);
-      const claseVal = get(idxs.Clase);
       const pilotoVal = get(idxs.Piloto);
       const licVal = get(idxs.Lic);
       const equipoVal = get(idxs.Equipo);
@@ -207,19 +276,48 @@ fetch(url)
               td.innerHTML=`<span class="gan-num">${String(ganRaw)}</span>`;
             } else td.innerHTML=`<span class="gan-num">–</span>`;
             break;
-          case "Clase": td.className="clase"; td.innerText=claseVal||""; break;
-          case "Piloto": td.className="piloto"; td.innerText=pilotoVal||""; break;
-          case "Lic.": td.className="dorsal"; td.innerHTML=`<div class="dorsal-box"><span>${licVal||""}</span></div>`; break;
-          case "Equipo": td.className="equipo"; td.innerText=equipoVal||""; break;
-          case "Marca": td.className="marca"; td.innerHTML=marcaVal?`<img src="${marcaVal}" alt="Marca">`:""; break;
-          case "Espec.": td.className="spec"; td.innerText=especVal||""; break;
-          case "Vueltas": td.innerText=vueltasVal||""; break;
-          case "Tiempo": td.innerText=tiempoVal||""; break;
-          case "Mejor V.": td.innerText=mejorVVal||""; break;
-          case "Pits": td.innerText=pitsVal; break;
+          case "Clase":
+            td.className="clase";
+            td.innerText=claseVal||"";
+            break;
+          case "Piloto":
+            td.className="piloto";
+            td.innerText=pilotoVal||"";
+            break;
+          case "Lic.":
+            td.className="dorsal";
+            td.innerHTML=`<div class="dorsal-box"><span>${licVal||""}</span></div>`;
+            break;
+          case "Equipo":
+            td.className="equipo";
+            td.innerText=equipoVal||"";
+            break;
+          case "Marca":
+            td.className="marca";
+            td.innerHTML=marcaVal?`<img src="${marcaVal}" alt="Marca">`:"";
+            break;
+          case "Espec.":
+            td.className="spec";
+            td.innerText=especVal||"";
+            break;
+          case "Vueltas":
+            td.innerText=vueltasVal||"";
+            break;
+          case "Tiempo":
+            td.innerText=tiempoVal||"";
+            break;
+          case "Mejor V.":
+            td.innerText=mejorVVal||"";
+            break;
+          case "Pits":
+            td.innerText=pitsVal;
+            break;
+          default:
+            td.innerText = "";
         }
         tr.appendChild(td);
       });
+
       tbody.appendChild(tr);
     });
 
